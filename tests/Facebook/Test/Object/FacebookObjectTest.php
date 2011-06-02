@@ -138,4 +138,10 @@ class FacebookObjectTest extends BaseTest
     	}
     }
     
+    public function testMethodToProperty()
+    {
+    	$object = new FacebookObject($this->facebook, array('id' => 'plop', 'first_name' => 'MyFirstName'));
+    	$this->assertEquals('first_name', $object->methodToProperty('FirstName'));
+    	$this->assertEquals('MyFirstName', $object->getFirstName());
+    }
 }  

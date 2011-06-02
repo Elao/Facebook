@@ -64,7 +64,7 @@ class FacebookObject implements \ArrayAccess, \Iterator, \Countable
 		$result  =  $this->facebook->api($call, $method, $params);
 		
 		if (!$result instanceof FacebookCollection){
-			die("fuck off");
+			return array();
 		}
 		return $result;		
 	}
@@ -73,17 +73,31 @@ class FacebookObject implements \ArrayAccess, \Iterator, \Countable
 
 		if (substr($method, 0, 3) == 'get') {
 				// Want a property
-				$property = strtolower(substr($method, 3));
+				// getFirstName => first_name
+				$property = $this->methodToProperty(substr($method, 3));
 				return call_user_func(array($this, 'get'), $property);
 		}	
 
 		if (substr($method, 0, 5) == 'fetch') {
 				// Want a connexion
-				$connexion = strtolower(substr($method, 5));
+				$connexion = $this->methodToProperty(substr($method, 5));
 				return call_user_func(array($this, 'fetch'), $connexion);
 		}
 		throw new Exception(sprintf('Unknown method %s::%s', get_class($this), $method));
 	}
+	
+	public function methodToProperty($method){
+		$property = $method;
+    	$property = str_replace('::', '/', $property);
+    	$replace  = array(
+    		'/([A-Z]+)([A-Z][a-z])/' => '\\1_\\2', 
+    		'/([a-z\d])([A-Z])/'     => '\\1_\\2'
+    	);
+    	$property = preg_replace(array_keys($replace), array_values($replace), $property);
+
+    	return strtolower($property);
+	}
+	
 	
 	/** ArrayAccess **/
 	public function offsetExists ( $offset ){

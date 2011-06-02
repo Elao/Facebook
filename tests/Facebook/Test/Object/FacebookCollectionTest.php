@@ -140,5 +140,16 @@ class FacebookCollectionTest extends BaseTest
     	}
     }
     
+    public function testMethodToProperty()
+    {
+		$objects = array(
+    		array('id' => 'ob1', 'first_name' => 'd1'),
+    		array('id' => 'ob2', 'first_name' => 'd2')
+    	);
+    	
+    	$collection = new FacebookCollection($this->facebook, $objects);
+
+    	$this->assertSame(array('d1', 'd2'), $collection->getFirstName());
+    }
     
 }  

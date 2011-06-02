@@ -51,21 +51,17 @@ class FacebookCollection implements \ArrayAccess, \Iterator, \Countable
 
 	public function __call($method, $arguments) {
 		if (substr($method, 0, 3) == 'get') {
-				// Want a property
-				$property = strtolower(substr($method, 3));
 				$result = array();
 				foreach ($this->getObjects() as $object) {
-					$result[] = call_user_func(array($object, 'get'), $property);
+					$result[] = call_user_func(array($object, $method));
 				}
 				return $result;
 		}	
 
 		if (substr($method, 0, 5) == 'fetch') {
-				// Want a connexion
-				$connexion = strtolower(substr($method, 5));
 				$result    = array();
 				foreach ($this->getObjects() as $object) {
-					$result[] = call_user_func(array($object, 'fetch'), $connexion);
+					$result[] = call_user_func(array($object, $method));
 				}
 				$collection = new FacebookCollection($this->facebook, $result);
 				return $collection;
