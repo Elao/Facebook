@@ -14,11 +14,12 @@ namespace Facebook\Loader;
 use Facebook\Loader\LoaderInterface;
 use Facebook\Facebook;
 use Facebook\Session;
+use Facebook\Validator\SessionValidatorInterface;
 
 /**
  * Cookie Loader tries to create a session from the cookie
  * works with the Cookie dumper
- * 
+ *
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
 class CookieLoader implements LoaderInterface {
@@ -28,9 +29,9 @@ class CookieLoader implements LoaderInterface {
     protected $sessionValidator;
 
     public function __construct(Facebook $facebook, SessionValidatorInterface $validator) {
-        $this->facebook = $facebook;
-        $this->sessionValidator = $validator;
-        $this->sessionCookieName = 'fbs_' . $this->facebook->getConfiguration()->getAppId();
+        $this->facebook             = $facebook;
+        $this->sessionValidator     = $validator;
+        $this->sessionCookieName    = 'fbs_' . $this->facebook->getConfiguration()->getAppId();
     }
 
     public function support() {
@@ -42,11 +43,16 @@ class CookieLoader implements LoaderInterface {
         parse_str(trim(get_magic_quotes_gpc() ? stripslashes($_COOKIE[$this->sessionCookieName]) : $_COOKIE[$this->sessionCookieName], '"'), $session);
 
         // We should validated session here buddy
-        if ($this->validator->isValidSession($session)) {
+        if ($this->getValidator()->isValidSession($session)) {
             return new Session($this->facebook, $session);
         } else {
             return false;
         }
     }
 
+    public function getValidator()
+    {
+
+        return $this->sessionValidator;
+    }
 }
