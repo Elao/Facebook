@@ -20,27 +20,27 @@ use Facebook\Facebook;
  *
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class SessionDumper implements DumperInterface 
-{
-	protected $facebook;
-	protected $session_key;
-	
-	public function __construct(Facebook $facebook, $session_key = 'fb_session') {
-		$this->facebook 		 = $facebook;
-		$this->session_key		 = $session_key;	
-	}
-	
-	public function getSessionKey()
-	{
-		return $this->session_key;
-	}
-	
-	public function dump(Session $session) {
-		$_SESSION[$this->getSessionKey()] = serialize($session->toArray());
-		return true;
-	}
-	
-	public function breakOnSucess() {
-		return true;
-	}
+class SessionDumper implements DumperInterface {
+
+    protected $facebook;
+    protected $session_key;
+
+    public function __construct(Facebook $facebook, $session_key = 'fb_session') {
+        $this->facebook = $facebook;
+        $this->session_key = $session_key;
+    }
+
+    public function getSessionKey() {
+        return $this->session_key;
+    }
+
+    public function dump(Session $session) {
+        $_SESSION[$this->getSessionKey()] = serialize($session->toArray());
+        return true;
+    }
+
+    public function breakOnSucess() {
+        return true;
+    }
+
 }

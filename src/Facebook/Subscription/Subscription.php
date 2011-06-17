@@ -16,88 +16,85 @@ namespace Facebook\Subscription;
  * 
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class Subscription
-{
-	private $object;
-	private $callback;
-	private $fields;
-	private $active;
-	
-	public function __construct(array $configuration = array()) {
-		if (isset($configuration['object'])){
-			$this->object = $configuration['object'];
-		}
-		
-		if (isset($configuration['callback'])){
-			$this->callback = $configuration['callback'];
-		}
-		
-		if (isset($configuration['fields'])){
-			$this->fields = $configuration['fields'];
-		}
-		
-		if (isset($configuration['active'])){
-			$this->active = $configuration['active'];
-		}
-	}
-	
-	/**
-	 * @return the $object
-	 */
-	public function getObject() {
-		return $this->object;
-	}
+class Subscription {
 
-	/**
-	 * @return the $callback
-	 */
-	public function getCallback() {
-		return $this->callback;
-	}
+    private $object;
+    private $callback;
+    private $fields;
+    private $active;
 
-	/**
-	 * @return the $fields
-	 */
-	public function getFields() {
-		return $this->fields;
-	}
+    public function __construct(array $configuration = array()) {
+        if (isset($configuration['object'])) {
+            $this->object = $configuration['object'];
+        }
 
-	/**
-	 * @return the $active
-	 */
-	public function getActive() {
-		return $this->active;
-	}
+        if (isset($configuration['callback'])) {
+            $this->callback = $configuration['callback'];
+        }
 
-	/**
-	 * @param field_type $object
-	 */
-	public function setObject($object) {
-		$this->object = $object;
-	}
+        if (isset($configuration['fields'])) {
+            $this->fields = $configuration['fields'];
+        }
 
-	/**
-	 * @param field_type $callback
-	 */
-	public function setCallback($callback) {
-		$this->callback = $callback;
-	}
+        if (isset($configuration['active'])) {
+            $this->active = $configuration['active'];
+        }
+    }
 
-	/**
-	 * @param field_type $fields
-	 */
-	public function setFields($fields) {
-		$this->fields = $fields;
-	}
+    /**
+     * @return the $object
+     */
+    public function getObject() {
+        return $this->object;
+    }
 
-	/**
-	 * @param field_type $active
-	 */
-	public function setActive($active) {
-		$this->active = $active;
-	}
+    /**
+     * @return the $callback
+     */
+    public function getCallback() {
+        return $this->callback;
+    }
 
-	
+    /**
+     * @return the $fields
+     */
+    public function getFields() {
+        return $this->fields;
+    }
 
-	
+    /**
+     * @return the $active
+     */
+    public function getActive() {
+        return $this->active;
+    }
+
+    /**
+     * @param field_type $object
+     */
+    public function setObject($object) {
+        $this->object = $object;
+    }
+
+    /**
+     * @param field_type $callback
+     */
+    public function setCallback($callback) {
+        $this->callback = $callback;
+    }
+
+    /**
+     * @param field_type $fields
+     */
+    public function setFields($fields) {
+        $this->fields = $fields;
+    }
+
+    /**
+     * @param field_type $active
+     */
+    public function setActive($active) {
+        $this->active = $active;
+    }
+
 }

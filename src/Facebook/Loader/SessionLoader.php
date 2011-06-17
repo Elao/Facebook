@@ -21,34 +21,33 @@ use Facebook\Session;
  * 
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class SessionLoader implements LoaderInterface
-{
-	protected $facebook;
-	protected $session_key;
-	
-	public function __construct(Facebook $facebook, $session_key = 'fb_session') {
-		$this->facebook 		 = $facebook;
-		$this->session_key		 = $session_key;
-	}
-	
-	public function getSessionKey()
-	{
-		return $this->session_key;
-	}
-	
-	public function support() {
-		return isset($_SESSION[$this->getSessionKey()]);
-	}
-		
-	public function auth() {
-		$this->facebook->debug("Loader Session Attempt");
-		
-		$session = @unserialize($_SESSION[$this->getSessionKey()]);
-		if ($session && is_array($session))
-		{
-			return new Session($this->facebook, $session);
-		}else{
-			return false;
-		}
-	}
+class SessionLoader implements LoaderInterface {
+
+    protected $facebook;
+    protected $session_key;
+
+    public function __construct(Facebook $facebook, $session_key = 'fb_session') {
+        $this->facebook = $facebook;
+        $this->session_key = $session_key;
+    }
+
+    public function getSessionKey() {
+        return $this->session_key;
+    }
+
+    public function support() {
+        return isset($_SESSION[$this->getSessionKey()]);
+    }
+
+    public function auth() {
+        $this->facebook->debug("Loader Session Attempt");
+
+        $session = @unserialize($_SESSION[$this->getSessionKey()]);
+        if ($session && is_array($session)) {
+            return new Session($this->facebook, $session);
+        } else {
+            return false;
+        }
+    }
+
 }

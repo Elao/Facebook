@@ -11,7 +11,6 @@
 
 namespace Facebook\Dumper;
 
-
 use Facebook\Facebook;
 use Facebook\Dumper\DumperInterface;
 use Facebook\Session;
@@ -21,29 +20,29 @@ use Facebook\Session;
  *
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class CookieDumper implements DumperInterface 
-{
-	public function __construct(Facebook $facebook) {
-		$this->facebook 		 = $facebook;
-		$this->sessionCookieName = 'fbs_'.$this->facebook->getConfiguration()->getAppId();
-	}
-	
-	public function dump(Session $session){
-		$session = $session->toArray();
-		
-	    $cookieName = $this->sessionCookieName;
-    	$value = 'deleted';
-    	$expires = time() - 3600;
-    	
-	    $value   = '"' . http_build_query($session, null, '&') . '"';
-		$expires = isset($session['expires']) ? $session['expires'] : null;
+class CookieDumper implements DumperInterface {
 
-		
-		setcookie($cookieName, $value, $expires, '/');
-		
-	}
-	
-	public function breakOnSucess() {
-		return true;
-	}
+    public function __construct(Facebook $facebook) {
+        $this->facebook = $facebook;
+        $this->sessionCookieName = 'fbs_' . $this->facebook->getConfiguration()->getAppId();
+    }
+
+    public function dump(Session $session) {
+        $session = $session->toArray();
+
+        $cookieName = $this->sessionCookieName;
+        $value = 'deleted';
+        $expires = time() - 3600;
+
+        $value = '"' . http_build_query($session, null, '&') . '"';
+        $expires = isset($session['expires']) ? $session['expires'] : null;
+
+
+        setcookie($cookieName, $value, $expires, '/');
+    }
+
+    public function breakOnSucess() {
+        return true;
+    }
+
 }

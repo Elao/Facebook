@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Facebook\Requester;
+namespace Facebook\Validator;
 
-Interface RequesterInterface {
+Interface SessionValidatorInterface {
 
-    public function request($url, $params);
+    // The method should return true, if the session object is valid
+    public function isValidSession(array $sessionArray);
 }

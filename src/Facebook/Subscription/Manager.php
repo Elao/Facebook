@@ -16,28 +16,24 @@ namespace Facebook\Subscription;
  * 
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class Manager
-{
-	protected $subscriptions;
-		
-	public function __construct() {
-	
-		
-	}
-	
-	public function add(Subscription $subscription) {
-		
-		
-	}
-	
-	public function has($object) {
-		
-		
-	}
-	
-	public function get($object) {
-		
-		
-	}
-	
+class Manager {
+
+    protected $subscriptions;
+
+    public function __construct() {
+        
+    }
+
+    public function add(Subscription $subscription) {
+        
+    }
+
+    public function has($object) {
+        
+    }
+
+    public function get($object) {
+        
+    }
+
 }

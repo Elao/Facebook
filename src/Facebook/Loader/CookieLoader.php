@@ -21,27 +21,32 @@ use Facebook\Session;
  * 
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class CookieLoader implements LoaderInterface
-{
-	protected $facebook;
-	protected $sessionCookieName;
-	
-	public function __construct(Facebook $facebook) {
-		$this->facebook 		 = $facebook;
-		$this->sessionCookieName = 'fbs_'.$this->facebook->getConfiguration()->getAppId();
-	}
-	
-	public function support() {
-		return isset($_COOKIE[$this->sessionCookieName]);
-	}
-		
-	public function auth() {
-		$session = array();
-		parse_str(trim(get_magic_quotes_gpc() ? stripslashes($_COOKIE[$this->sessionCookieName]) : $_COOKIE[$this->sessionCookieName], '"'), $session);
-		
-		// We should validated session here buddy
-		
-		
-		return new Session($this->facebook, $session);
-	}
+class CookieLoader implements LoaderInterface {
+
+    protected $facebook;
+    protected $sessionCookieName;
+    protected $sessionValidator;
+
+    public function __construct(Facebook $facebook, SessionValidatorInterface $validator) {
+        $this->facebook = $facebook;
+        $this->sessionValidator = $validator;
+        $this->sessionCookieName = 'fbs_' . $this->facebook->getConfiguration()->getAppId();
+    }
+
+    public function support() {
+        return isset($_COOKIE[$this->sessionCookieName]);
+    }
+
+    public function auth() {
+        $session = array();
+        parse_str(trim(get_magic_quotes_gpc() ? stripslashes($_COOKIE[$this->sessionCookieName]) : $_COOKIE[$this->sessionCookieName], '"'), $session);
+
+        // We should validated session here buddy
+        if ($this->validator->isValidSession($session)) {
+            return new Session($this->facebook, $session);
+        } else {
+            return false;
+        }
+    }
+
 }
