@@ -35,7 +35,7 @@ class SignedRequestLoader implements LoaderInterface {
 
     public function auth() {
         try {
-            $signedRequest = $this->parseSignedRequest($_REQUEST['signed_request']);
+            $signedRequest = $this->facebook->parseSignedRequest($_REQUEST['signed_request']);
         } catch (AuthException $e) {
             return false;
         }
@@ -62,40 +62,12 @@ class SignedRequestLoader implements LoaderInterface {
         }
 
         $session = array(
-            'uid' => $data['user_id'],
-            'access_token' => $data['oauth_token'],
-            'expires' => $data['expires']
+            'uid'           => $data['user_id'],
+            'access_token'  => $data['oauth_token'],
+            'expires'       => $data['expires']
         );
 
         return $session;
-    }
-
-    /**
-     * Parses a signed_request and validates the signature.
-     * Then saves it in $this->signed_data
-     *
-     * @param String A signed token
-     * @return Array the payload inside it or null if the sig is wrong
-     */
-    protected function parseSignedRequest($signed_request) {
-        list($encoded_sig, $payload) = explode('.', $signed_request, 2);
-
-        $sig = $this->facebook->base64UrlDecode($encoded_sig);
-        $data = json_decode($this->facebook->base64UrlDecode($payload), true);
-
-        if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
-            throw new AuthException('Algorithm missmatch ' . $data['algorithm']);
-        }
-
-        // Check signature
-        $expected_sig = hash_hmac('sha256', $payload, $this->facebook->getConfiguration()->getAppSecret(), $raw = true);
-
-        if ($sig !== $expected_sig) {
-            throw new AuthException('Invalid signed Request sig ' . $sig . ' vs ' . $expected_sig);
-        }
-
-        // Check expiration
-        return $data;
     }
 
 }

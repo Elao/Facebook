@@ -440,5 +440,33 @@ class Facebook
     public function base64UrlDecode($input) {
         return base64_decode(strtr($input, '-_', '+/'));
     }
+    
+    /**
+     * Parses a signed_request and validates the signature.
+     * Then saves it in $this->signed_data
+     *
+     * @param String A signed token
+     * @return Array the payload inside it or null if the sig is wrong
+     */
+    public function parseSignedRequest($signed_request) {
+        list($encoded_sig, $payload) = explode('.', $signed_request, 2);
+
+        $sig = $this->base64UrlDecode($encoded_sig);
+        $data = json_decode($this->base64UrlDecode($payload), true);
+
+        if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
+            throw new AuthException('Algorithm missmatch ' . $data['algorithm']);
+        }
+
+        // Check signature
+        $expected_sig = hash_hmac('sha256', $payload, $this->getAppSecret(), $raw = true);
+
+        if ($sig !== $expected_sig) {
+            throw new AuthException('Invalid signed Request sig ' . $sig . ' vs ' . $expected_sig);
+        }
+
+        // Check expiration
+        return $data;
+    }
 
 }

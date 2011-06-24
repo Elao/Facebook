@@ -42,7 +42,7 @@ class CookieDumper implements DumperInterface {
     }
 
     public function breakOnSucess() {
-        return true;
+        return false;
     }
 
 }
