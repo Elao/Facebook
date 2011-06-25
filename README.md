@@ -43,7 +43,6 @@ $facebook->addLoader(new Facebook\Loader\SessionLoader($facebook));
 $facebook->addDumper(new Facebook\Dumper\SessionDumper($facebook));
 
 
-
 Examples
 ========
 

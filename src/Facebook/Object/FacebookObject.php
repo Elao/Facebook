@@ -59,7 +59,7 @@ class FacebookObject implements \ArrayAccess, \Iterator, \Countable {
         $method = 'GET';
         $params = array();
 
-        $call = '/' . $this->getId() . '/' . $connexion;
+        $call   = '/' . $this->getId() . '/' . $connexion;
         $result = $this->facebook->api($call, $method, $params);
 
         if (!$result instanceof FacebookCollection) {
@@ -90,7 +90,7 @@ class FacebookObject implements \ArrayAccess, \Iterator, \Countable {
         $property = str_replace('::', '/', $property);
         $replace = array(
             '/([A-Z]+)([A-Z][a-z])/' => '\\1_\\2',
-            '/([a-z\d])([A-Z])/' => '\\1_\\2'
+            '/([a-z\d])([A-Z])/'     => '\\1_\\2'
         );
         $property = preg_replace(array_keys($replace), array_values($replace), $property);
 

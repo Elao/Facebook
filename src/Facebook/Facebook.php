@@ -41,13 +41,16 @@ class Facebook
     protected $requester;		// Requester object
     protected $logger;			// Logger
 	
-    protected $configuration;	// Facebook Application Configuration
+    protected $configuration;           // Facebook Application Configuration
 	
     protected $session;			// The related session object
     
     // List of loaded loaders & dumpers
     protected $loaders  	   = array();
     protected $dumpers		   = array();
+    
+    protected $creditsRequestHandler;   // Credits Request Handler
+    protected $creditsItemProvider;     // Credits Items Provider
     
     /**
      * List of query parameters that get automatically dropped when rebuilding
@@ -109,6 +112,14 @@ class Facebook
         $this->requester = $requester;
     }
   
+    public function getCreditsRequestHandler() {
+        return $this->creditsRequestHandler;
+    }
+    
+    public function setCreditsRequestHandler($creditsRequestHandler) {
+        $this->creditsRequestHandler = $creditsRequestHandler;
+    }
+    
   /**
      *  Try to get a session object from either the specified $loaders or the defaults ones
      *  Dump the session to the specified $dumpers or the defaults ones
