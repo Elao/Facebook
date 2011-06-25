@@ -6,19 +6,19 @@ use Facebook\Credits\ItemInterface;
 
 class Item implements ItemInterface {
     
-    protected $id;
+    protected $itemId;
     protected $title;
     protected $price;
     protected $description;
     protected $imageUrl;
     protected $productUrl;
 
-    public function getId() {
-        return $this->id;
+    public function getItemId() {
+        return $this->itemId;
     }
     
-    public function setId($id) {
-        $this->id = $id;
+    public function setItemId($itemId) {
+        $this->itemId = $itemId;
     }
     
     public function getTitle() {
@@ -63,7 +63,7 @@ class Item implements ItemInterface {
 
     public function toArray() {
         return array(
-            'id'            => $this->getId(),
+            'item_id'       => $this->getItemId(),
             'title'         => $this->getTitle(),
             'price'         => $this->getPrice(),
             'description'   => $this->getDescription(),

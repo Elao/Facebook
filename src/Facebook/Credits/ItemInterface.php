@@ -4,7 +4,7 @@ namespace Facebook\Credits;
 
 Interface ItemInterface {
 
-    public function getId();
+    public function getItemId();
     
     public function getTitle();
 
