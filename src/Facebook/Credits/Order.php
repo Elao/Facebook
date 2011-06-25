@@ -66,7 +66,7 @@ class Order implements OrderInterface {
         $this->status = $status;
     }
     
-    public function getId($id) {
+    public function getId() {
         return $this->id;
     }
     
