@@ -16,7 +16,7 @@ Interface OrderInterface {
     public function getId();
     
     /* Return items of this order */
-    public function getItems();
+    public function getItemIds();
     
     /* Return the facebook id of the buyer */
     public function getBuyerId();
