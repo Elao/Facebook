@@ -67,24 +67,24 @@ class CreditsRequestHandler implements CreditsRequestHandlerInterface {
             $status   = $credits['status'];
             $details  = $credits['order_details'];
             $orderId  = $credits['order_id'];
+            $order    = false;
 
-            // Créer une order ou l'updater
-            
-            // Increment user crédits on the website
-            // write your logic here, determine the state you wanna move to
             if ($status == 'placed') {
-                // Create an order and process it
+                // Create a fresh order, ask the creditsProvider
                 $order = $this->getCreditsProvider()->createOrder();
                 $order->setId($orderId);
                 $order->setStatus(OrderInterface::STATUS_PLACED);
                 $status = 'settled';
             } elseif ($status == 'settled') {
+                // Get an existing order, ask the creditsProvider
                 $order = $this->getCreditsProvider()->getOrder($orderId);
                 $order->setStatus(OrderInterface::STATUS_SETTLED);
             }
             
-            $order->setDetails($details);
-            $this->getCreditsProvider()->processOrder($order);
+            if ($order) {
+                $order->setDetails($details);
+                $this->getCreditsProvider()->processOrder($order);
+            }
             
             $data['content']['status'] = $status;
 

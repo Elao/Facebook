@@ -18,6 +18,8 @@
 
 namespace Facebook\Credits;
 
+use Facebook\Credits\OrderInterface;
+
 class Order implements OrderInterface {
     
     protected $status;
