@@ -18,25 +18,25 @@
 namespace Facebook\Credits;
 
 use Facebook\Facebook;
-use Facebook\Credits\ItemProviderInterface;
+use Facebook\Credits\CreditsProviderInterface;
 use Facebook\Credits\ItemInterface;
 
 class CreditsRequestHandler implements CreditsRequestHandlerInterface {
 
     protected $facebook;
-    protected $itemProvider;
+    protected $creditsProvider;
     protected $orderManager;
     
     public function __construct(Facebook $facebook) {
         $this->facebook     = $facebook;
     }
     
-    public function getItemProvider() {
-        return $this->itemProvider;
+    public function getCreditsProvider() {
+        return $this->creditsProvider;
     }
     
-    public function setItemProvider(ItemProviderInterface $itemProvider) {
-        $this->itemProvider = $itemProvider;
+    public function setCreditsProvider(CreditsProviderInterface $creditsProvider) {
+        $this->creditsProvider = $creditsProvider;
     }
     
     public function getOrderManager() {
@@ -66,34 +66,36 @@ class CreditsRequestHandler implements CreditsRequestHandlerInterface {
         if ($method == 'payments_status_update') {
             $status   = $credits['status'];
             $details  = $credits['order_details'];
-            $order_id = $credits['order_id'];
+            $orderId  = $credits['order_id'];
 
             // Créer une order ou l'updater
             
             // Increment user crédits on the website
             // write your logic here, determine the state you wanna move to
             if ($status == 'placed') {
+                // Create an order and process it
+                $order = $this->getCreditsProvider()->createOrder();
+                $order->setId($orderId);
+                $order->setStatus(OrderInterface::STATUS_PLACED);
                 $status = 'settled';
             } elseif ($status == 'settled') {
-                
-                $user_id = $details["buyer"];
-                $user = $this->getUser($user_id);
-                if ($user) {
-                    $user->incrementCredits(1000);
-                    $this->getEm()->flush();
-                }
+                $order = $this->getCreditsProvider()->getOrder($orderId);
+                $order->setStatus(OrderInterface::STATUS_SETTLED);
             }
-
+            
+            $order->setDetails($details);
+            $this->getCreditsProvider()->processOrder($order);
+            
             $data['content']['status'] = $status;
 
             // compose returning data array_change_key_case
-            $data['content']['order_id'] = $order_id;
+            $data['content']['order_id'] = $orderId;
         } else if ($method == 'payments_get_items') {
 
             // remove escape characters
             $orderInfo = $credits ? stripcslashes($credits['order_info']) : '';
             if (is_string($orderInfo)) {
-                $item = $this->getItemProvider()->getItemFromCode($orderInfo);
+                $item = $this->getCreditsProvider()->getItemFromCode($orderInfo);
                 if (!$item) {
                     // Throw Exception
                 }

@@ -24,6 +24,10 @@ Interface OrderInterface {
     /* Return the facebook id of the receiver */
     public function getReceiverId();
     
+    public function setStatus($status);
     
+    public function setId($id);
+    
+    public function setDetails($details);
     
 }

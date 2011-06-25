@@ -5,13 +5,22 @@ namespace Facebook\Credits;
 use Facebook\Credits\ItemInterface;
 
 class Item implements ItemInterface {
-
+    
+    protected $id;
     protected $title;
     protected $price;
     protected $description;
     protected $imageUrl;
     protected $productUrl;
 
+    public function getId() {
+        return $this->id;
+    }
+    
+    public function setId($id) {
+        $this->id = $id;
+    }
+    
     public function getTitle() {
         return $this->title;
     }
@@ -54,6 +63,7 @@ class Item implements ItemInterface {
 
     public function toArray() {
         return array(
+            'id'            => $this->getId(),
             'title'         => $this->getTitle(),
             'price'         => $this->getPrice(),
             'description'   => $this->getDescription(),

@@ -34,7 +34,7 @@ use Facebook\Requester\RequesterInterface;
  */
 class Facebook
 {
-    const FACEBOOK_URL	 	= "https://www.facebook.com/";
+    const FACEBOOK_URL	    = "https://www.facebook.com/";
     const FACEBOOK_API_URL  = "https://graph.facebook.com/";
     const FACEBOOK_APPS_URL = "http://apps.facebook.com/";
 	
@@ -50,7 +50,6 @@ class Facebook
     protected $dumpers		   = array();
     
     protected $creditsRequestHandler;   // Credits Request Handler
-    protected $creditsItemProvider;     // Credits Items Provider
     
     /**
      * List of query parameters that get automatically dropped when rebuilding

@@ -4,6 +4,8 @@ namespace Facebook\Credits;
 
 Interface ItemInterface {
 
+    public function getId();
+    
     public function getTitle();
 
     public function getPrice();

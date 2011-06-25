@@ -15,17 +15,45 @@
  * @package    Facebook SDK
  * @author     Vincent BOUZERAN <vincent.bouzeran@elao.com>
  */
+
+namespace Facebook\Credits;
+
 class Order implements OrderInterface {
     
     protected $status;
     protected $id;
-    protected $items;
     protected $buyerId;
     protected $receiverId;
+    protected $appId;
+    protected $amount;
+    protected $timePlaced;
+
+    protected $itemIds;
     
     public function __construct($id = null, $status = null) {
         $this->setId($id);
         $this->setStatus($status);
+    }
+    
+    public function setDetails(array $details) {
+        $orderId    = $details["order_id"];
+        $buyerId    = $details["buyer"];
+        $appId      = $details["app"];
+        $receiverId = $details["receiver"];
+        $amount     = $details["amount"];
+        $timePlaced = $details["time_placed"];
+        $items      = $details["items"];
+        
+        $this->id           = $orderId;
+        $this->buyerId      = $buyerId;
+        $this->appId        = $appId;
+        $this->receiverId   = $receiverId;
+        $this->amount       = $amount;
+        $this->timePlaced   = $timePlaced;
+        
+        foreach ($items as $item) {
+            $this->addItemId($item['item_id']);
+        }
     }
     
     public function getStatus() {
@@ -60,15 +88,39 @@ class Order implements OrderInterface {
         $this->buyerId = $buyerId;
     }
     
-    public function getItems() {
-        return $this->items;
+    public function getAppId() {
+        return $this->appId;
     }
     
-    public function setItems(array $items) {
-        $this->items = $items;
+    public function setAppId($appId) {
+        $this->appId = $appId;
     }
     
-    public function addItem($item) {
-        $this->items[] = $item;
+    public function getAmount() {
+        return $this->amount;
+    }
+   
+    public function setAmount($amount) {
+        $this->amount = $amount;
+    }
+    
+    public function getTimePlaced() {
+        return $this->timePlaced;
+    }
+    
+    public function setTimePlaced($timePlaced) {
+        $this->timePlaced = $timePlaced;
+    }
+    
+    public function getItemIds() {
+        return $this->itemIds;
+    }
+    
+    public function setItemIds($itemIds) {
+        $this->itemIds = $itemIds;
+    }
+    
+    public function addItemId($itemId) {
+        $this->itemIds[] = $itemId;
     }
 }
