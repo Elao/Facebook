@@ -65,7 +65,7 @@ class CreditsRequestHandler implements CreditsRequestHandlerInterface {
 
         if ($method == 'payments_status_update') {
             $status   = $credits['status'];
-            $details  = $credits['order_details'];
+            $details  = json_decode($credits['order_details'], true);
             $orderId  = $credits['order_id'];
             $order    = false;
 
