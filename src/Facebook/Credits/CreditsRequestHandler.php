@@ -92,7 +92,7 @@ class CreditsRequestHandler implements CreditsRequestHandlerInterface {
 
             // remove escape characters
             $orderInfo = $credits ? stripcslashes($credits['order_info']) : '';
-            if (is_string($order_info)) {
+            if (is_string($orderInfo)) {
                 $item = $this->itemManager->getItemFromCode($orderInfo);
                 if (!$item) {
                     // Throw Exception
