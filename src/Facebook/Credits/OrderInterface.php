@@ -28,6 +28,6 @@ Interface OrderInterface {
     
     public function setId($id);
     
-    public function setDetails($details);
+    public function setDetails(array $details);
     
 }
