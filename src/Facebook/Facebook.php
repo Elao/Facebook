@@ -342,7 +342,7 @@ class Facebook
             switch ($e->getType()) {
                 case 'OAuthException':
                 case 'invalid_token':
-                    throw new AuthException($e->getMessage() . " calling " . $this->getUrl() . " with params " . implode(',', $this->getParams()));
+                    throw new AuthException($e->getMessage() . " calling " . $this->getUrl() . " with params " . implode(',', $params));
             }
             throw $e;
         }
