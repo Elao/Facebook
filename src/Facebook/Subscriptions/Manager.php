@@ -14,6 +14,9 @@ namespace Facebook\Subscriptions;
 use Facebook\Loader\ApplicationLoader;
 use Facebook\Subscriptions\Event;
 use Facebook\Subscriptions\Subscription;
+
+use Facebook\Facebook;
+
 /**
  * Subscription Manager allows to manager Subscription Objects
  * 
