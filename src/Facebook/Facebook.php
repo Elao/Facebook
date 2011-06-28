@@ -39,6 +39,8 @@ class Facebook
     const FACEBOOK_API_URL  = "https://graph.facebook.com/";
     const FACEBOOK_APPS_URL = "http://apps.facebook.com/";
 	
+    const TRANSACTION_LIMIT = 20;
+    
     protected $requester;		// Requester object
     protected $logger;			// Logger
 	
@@ -54,6 +56,9 @@ class Facebook
     protected $subscriptionsRequestHandler; // Subscriptions Request Handler
     protected $subscriptionsManager;        // Subscriptions Manager
     
+    protected $transaction;
+    protected $transactionCalls;
+    
     /**
      * List of query parameters that get automatically dropped when rebuilding
      * the current URL.
@@ -65,9 +70,11 @@ class Facebook
     );
 
     public function __construct(Configuration $configuration, RequesterInterface $requester, $logger = null) {
-        $this->requester = $requester;
-        $this->logger = $logger;
-        $this->configuration = $configuration;
+        $this->requester        = $requester;
+        $this->logger           = $logger;
+        $this->configuration    = $configuration;
+        $this->transaction      = false;
+        $this->transactionCalls = array();
     }
 
     /**
@@ -139,6 +146,38 @@ class Facebook
     
     public function setSubscriptionsManager($subscriptionsManager) {
         $this->subscriptionsManager = $subscriptionsManager;
+    }
+    
+    public function getTransaction() {
+        return $this->transaction;
+    }
+    
+    public function startTransaction() {
+        $this->transaction = true;
+    }
+    
+    public function addTransactionCall($method, $url, $params) {
+        if (count($this->transactionCalls) >= self::TRANSACTION_LIMIT){
+            throw new ConfigurationException("Transaction calls limit ".self::TRANSACTION_LIMIT." reached");
+        }
+        
+        $call = array('method' => $method);
+        if (isset($params['access_token'])){
+            $call['access_token'] = $params['access_token'];
+        }
+        
+        if ($method == 'GET'){ // Params should be added to query string relative
+            $call['relative_url'] = $url.'?'.http_build_query($params);
+        }else{
+            $call['relative_url'] = $url;
+            $call['body']         = http_build_query($params);
+        }
+        
+        $this->transactionCalls[] = $call;
+    }
+    
+    public function getBatchTransactionParam() {
+        return json_encode($this->transactionCalls);
     }
     
   /**
@@ -309,8 +348,7 @@ class Facebook
      * @return String the URL for the logout flow
      */
     public function getLoginStatusUrl($params = array()) {
-        return $this->getFacebookUrl('extern/login_status.php', array_merge($this->getLoginStatusUrlDefaultParameters(), $params)
-        );
+        return $this->getFacebookUrl('extern/login_status.php', array_merge($this->getLoginStatusUrlDefaultParameters(), $params));
     }
 
     protected function getLoginStatusUrlDefaultParameters() {
@@ -355,28 +393,71 @@ class Facebook
         // Build api
         $url = $this->getApiUrl($path, $params);
 
-        // Send the request to the graph api
-        $result = $this->getRequester()->request($url, $params);
+        if ($this->getTransaction()){
+             $this->addTransactionCall($method, $path, $params);  
+            return $this;
+        }else{
+            // Send the request to the graph api
+            $result = $this->getRequester()->request($url, $params);
 
-        if ($result && is_array($result) && isset($result['error'])) {
-            $e = new ApiException($result);
+            if ($result && is_array($result) && isset($result['error'])) {
+                $e = new ApiException($result);
 
-            switch ($e->getType()) {
-                case 'OAuthException':
-                case 'invalid_token':
-                    throw new AuthException($e->getMessage() . " calling " . $this->getUrl() . " with params " . implode(',', $params));
+                switch ($e->getType()) {
+                    case 'OAuthException':
+                    case 'invalid_token':
+                        throw new AuthException($e->getMessage() . " calling " . $this->getUrl() . " with params " . implode(',', $params));
+                }
+                throw $e;
             }
-            throw $e;
-        }
 
-        // Return either a Facebook Object or a Facebook Object Collection
-        if (isset($result['data'])) {
-            return new FacebookCollection($this, $result['data']);
-        } else {
-            return new FacebookObject($this, $result);
+            // Return either a Facebook Object or a Facebook Object Collection
+            if (isset($result['data'])) {
+                return new FacebookCollection($this, $result['data']);
+            } else {
+                return new FacebookObject($this, $result);
+            }
         }
     }
 
+    /**
+     * Call the api and return the batch result
+     * @return array of FacebookCollection, FacebookObject or ApiException
+     */
+    public function commit() {
+        if (!$this->getTransaction()){
+            return new ConfigurationException("Commit called outside transaction");
+        }
+        
+        $params = array(
+            'access_token' => $this->getAccessToken(),
+            'method'       => 'POST',
+            'batch'        => $this->getBatchTransactionParam()
+        );
+        
+        $url     = self::FACEBOOK_API_URL;
+        $results = $this->getRequester()->request($url, $params);
+        
+        $data    = array();
+        foreach ($results as $result){
+            $body = json_decode($result['body'], true);
+            if ($result['code'] == 200){ // Request succeed
+                if (isset($body['data'])){
+                    $data[] = new FacebookCollection($this, $body['data']);
+                }else{
+                    $data[] = new FacebookObject($this, $body);
+                }
+            }else{
+                $data[]     = new ApiException($body);
+            }
+        }
+        
+        $this->transactionCalls = array();
+        $this->transaction      = false;
+        
+        return $data;
+    }
+    
     /**
      * Parse the path to replace token by related configuration entries
      * @param string $path
@@ -500,5 +581,4 @@ class Facebook
         // Check expiration
         return $data;
     }
-
 }

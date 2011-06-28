@@ -43,7 +43,7 @@ class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterfac
     }
     
     public function getResponseGet(array $subscriptionsRequest) {
-        foreach (array('hub_mode', 'hub_verify_token', 'hub_chanllenge') as $check){
+        foreach (array('hub_mode', 'hub_verify_token', 'hub_challenge') as $check){
             if (!isset($subscriptionsRequest[$check])){
                 return false;
             }
@@ -59,7 +59,7 @@ class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterfac
         try{
             $event = new UserEvent($subscriptionsRequest);
             $this->getSubscriptionsManager()->handleEvent($event);    
-            return true;
+            return "true";
         }catch (Exception $e){
             return false;
         }

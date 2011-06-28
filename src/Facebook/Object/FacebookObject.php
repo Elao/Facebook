@@ -49,7 +49,7 @@ class FacebookObject implements \ArrayAccess, \Iterator, \Countable {
     }
 
     public function hasId() {
-        return!is_null($this->id);
+        return !is_null($this->id);
     }
 
     public function fetch($connexion, $options = array()) {
