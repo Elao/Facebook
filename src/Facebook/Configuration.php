@@ -33,9 +33,11 @@ class Configuration
 {
     protected $appId;			 // Application ID
     protected $appSecret;		 // Application Secret
-    protected $appFacebookUrl;	 // Facebook base app url
-    protected $appPermissions;	 // Required permissions to generate login url
+    protected $appFacebookUrl;           // Facebook base app url
+    protected $appPermissions;           // Required permissions to generate login url
         
+    protected $subscriptionsVerifyToken; // Required to use subscriptions manager   
+    
     protected $debug;			 // Debug mode
     protected $configuration;	 // Handle all params
   	
@@ -61,6 +63,10 @@ class Configuration
             $this->setAppPermissions($configuration['permissions']);
 	}
 		
+        if (isset($configuration['subscriptionsVerifyToken'])) {
+            $this->setSubscriptionsVerifyToken($configuration['subscriptionsVerifyToken']);
+        }
+        
 	$this->configuration = $configuration;
     }	
 	
@@ -136,4 +142,13 @@ class Configuration
         
         return $this->appPermissions ? : array();
     }
+    
+    public function getSubscriptionsVerifyToken() {
+        return $this->subscriptionsVerifyToken;
+    }
+    
+    public function setSubscriptionsVerifyToken($subscriptionsVerifyToken) {
+        $this->subscriptionsVerifyToken = $subscriptionsVerifyToken;
+    }
+    
 }

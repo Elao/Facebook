@@ -24,6 +24,7 @@ use Facebook\Object\FacebookObject;
 
 use Facebook\Requester\RequesterInterface;
 
+use Facebook\Configuration;
 /**
  * Facebook object is the main Facebook Service.
  * It handles the configuration, and the sessions managment
@@ -49,7 +50,8 @@ class Facebook
     protected $loaders  	   = array();
     protected $dumpers		   = array();
     
-    protected $creditsRequestHandler;   // Credits Request Handler
+    protected $creditsRequestHandler;       // Credits Request Handler
+    protected $subscritpionsRequestHandler; // Subscriptions Request Handler
     
     /**
      * List of query parameters that get automatically dropped when rebuilding
@@ -67,6 +69,9 @@ class Facebook
         $this->configuration = $configuration;
     }
 
+    /**
+     * @return type Facebook\Configuration;
+     */
     public function getConfiguration() {
         return $this->configuration;
     }
@@ -117,6 +122,14 @@ class Facebook
     
     public function setCreditsRequestHandler($creditsRequestHandler) {
         $this->creditsRequestHandler = $creditsRequestHandler;
+    }
+    
+    public function getSubscriptionsRequestHandler() {
+        return $this->subscritpionsRequestHandler;
+    }
+    
+    public function setSubscriptionsRequestHandler($subscriptionsRequestHandler) {
+        $this->subscritpionsRequestHandler = $subscriptionsRequestHandler;
     }
     
   /**

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Facebook\Subscription;
+namespace Facebook\Subscriptions;
 
 /**
  * Subscription represents a Subscription object
