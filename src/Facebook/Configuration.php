@@ -36,8 +36,9 @@ class Configuration
     protected $appFacebookUrl;           // Facebook base app url
     protected $appPermissions;           // Required permissions to generate login url
         
-    protected $subscriptionsVerifyToken; // Required to use subscriptions manager   
-    protected $subscriptionsCallback;    // Subscription callback
+    protected $subscriptionsVerifyToken;    // Required to use subscriptions manager   
+    protected $subscriptionsCallback;       // Subscription callback
+    protected $subscriptionsConfiguration;  // Base subscriptions to manager
     
     protected $debug;			 // Debug mode
     protected $configuration;	 // Handle all params
@@ -70,6 +71,10 @@ class Configuration
         
         if (isset($configuration['subscriptionsCallback'])) {
             $this->setSubscriptionsCallback($configuration['subscriptionsCallback']);
+        }
+        
+        if (isset($configuration['subscriptionsConfiguration'])) {
+            $this->setSubscriptionsConfiguration($configuration['subscriptionsConfiguration']);
         }
         
 	$this->configuration = $configuration; 
@@ -163,5 +168,14 @@ class Configuration
     public function setSubscriptionsCallback($subscriptionsCallback) {
         $this->subscriptionsCallback = $subscriptionsCallback;
     }
+ 
+    public function getSubscriptionsConfiguration() {
+        return $this->subscriptionsConfiguration;
+    }
+    
+    public function setSubscriptionsConfiguration($subscriptionsConfiguration) {
+        $this->subscriptionsConfiguration = $subscriptionsConfiguration;
+    }
+    
     
 }

@@ -28,7 +28,12 @@ abstract class Manager {
     protected $facebook;
     
     public function __construct(Facebook $facebook) {
-        $this->facebook = $facebook;
+        $this->facebook      = $facebook;
+        $this->subscriptions = array();
+        
+        if ($this->facebook->getConfiguration()->getSubscriptionsConfiguration()){
+            $this->addFromArray($this->facebook->getConfiguration()->getSubscriptionsConfiguration());
+        }
     }
 
     /**
@@ -83,7 +88,7 @@ abstract class Manager {
      */
     public function registerSubscriptions() {
         $applicationLoader = new ApplicationLoader($this->facebook);
-        $this->facebook->getSession($application, null, true);
+        $this->facebook->getSession($applicationLoader, null, true);
         foreach ($this->getSubscriptions() as $subscription){
             $params = array (
                 'object'        => $subscription->getObject(),
@@ -104,15 +109,16 @@ abstract class Manager {
 
     public function retrieveSubscriptions() {
         $applicationLoader = new ApplicationLoader($this->facebook);
-        $this->facebook->getSession($application, null, true);
+        $this->facebook->getSession($applicationLoader, null, true);
         
-        $subscriptions = $facebook->api('/%app_id%/subscriptions');
-        
+        $subscriptions = $this->facebook->api('/%app_id%/subscriptions');
+        $subs = array();
         foreach ($subscriptions as $_subscription) {
             $subscription = new Subscription($_subscription['object'], $_subscription['callback_url'], implode(',', $_subscription['fields']), $_subscription['active']);
+            $subs[] = $subscription;
             $this->add($subscription);
         }      
-        return $this->all();
+        return $subs;
     }
     
     abstract public function handleEvent(Event $event);
