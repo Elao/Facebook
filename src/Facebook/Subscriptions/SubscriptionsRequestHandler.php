@@ -20,6 +20,7 @@ namespace Facebook\Subscriptions;
 use Facebook\Facebook;
 use Facebook\Subscriptions\SubscriptionsProviderInterface;
 use Facebook\Subscriptions\Manager;
+use Facebook\Subscriptions\UserEvent;
 
 class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterface {
 
@@ -42,6 +43,11 @@ class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterfac
     }
     
     public function getResponseGet(array $subscriptionsRequest) {
+        foreach (array('hub_mode', 'hub_verify_token', 'hub_chanllenge') as $check){
+            if (!isset($subscriptionsRequest[$check])){
+                return false;
+            }
+        }
         
         if ($subscriptionsRequest['hub_mode'] == 'subscribe' 
             && $subscriptionsRequest['hub_verify_token'] == $this->facebook->getConfiguration()->getSubscriptionsVerifyToken()) {
@@ -50,14 +56,13 @@ class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterfac
     }
 
     public function getResponsePost(array $subscriptionsRequest) {
-        throw new \Exception("Got a subscription post request :D");
-        
-        // Build the event
-        
-        // Pass it to manager
-        
-        
-        $this->getSubscriptionsManager()->handleEvent($event);
+        try{
+            $event = new UserEvent($subscriptionsRequest);
+            $this->getSubscriptionsManager()->handleEvent($event);    
+            return true;
+        }catch (Exception $e){
+            return false;
+        }
     }
 }
 

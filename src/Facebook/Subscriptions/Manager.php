@@ -89,14 +89,14 @@ abstract class Manager {
     public function registerSubscriptions() {
         $applicationLoader = new ApplicationLoader($this->facebook);
         $this->facebook->getSession($applicationLoader, null, true);
-        foreach ($this->getSubscriptions() as $subscription){
+        $errors = array();
+        foreach ($this->subscriptions as $subscription){
             $params = array (
                 'object'        => $subscription->getObject(),
                 'fields'        => $subscription->getFields(),
                 'callback_url'  => $this->facebook->getConfiguration()->getSubscriptionsCallback(),
                 'verify_token'  => $this->facebook->getConfiguration()->getSubscriptionsVerifyToken()
             );
-            $errors = array();
             try{
                 $this->facebook->api('/%app_id%/subscriptions', 'POST', $params);
             }catch(Exception $e){ $errors[] = $e->getMessage(); }
