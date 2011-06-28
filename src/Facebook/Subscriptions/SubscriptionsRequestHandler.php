@@ -36,7 +36,7 @@ class SubscriptionsRequestHandler implements SubscriptionsRequestHandlerInterfac
         }
     }
 
-    public function getResponsePost() {
+    public function getResponsePost(array $subscriptionsRequest) {
         
     }
 }
