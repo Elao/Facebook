@@ -51,7 +51,8 @@ class Facebook
     protected $dumpers		   = array();
     
     protected $creditsRequestHandler;       // Credits Request Handler
-    protected $subscritpionsRequestHandler; // Subscriptions Request Handler
+    protected $subscriptionsRequestHandler; // Subscriptions Request Handler
+    protected $subscriptionsManager;        // Subscriptions Manager
     
     /**
      * List of query parameters that get automatically dropped when rebuilding
@@ -125,11 +126,19 @@ class Facebook
     }
     
     public function getSubscriptionsRequestHandler() {
-        return $this->subscritpionsRequestHandler;
+        return $this->subscriptionsRequestHandler;
     }
     
     public function setSubscriptionsRequestHandler($subscriptionsRequestHandler) {
-        $this->subscritpionsRequestHandler = $subscriptionsRequestHandler;
+        $this->subscriptionsRequestHandler = $subscriptionsRequestHandler;
+    }
+    
+    public function getSubscriptionsManager() {
+        return $this->subscriptionsManager;
+    }
+    
+    public function setSubscriptionsManager($subscriptionsManager) {
+        $this->subscriptionsManager = $subscriptionsManager;
     }
     
   /**

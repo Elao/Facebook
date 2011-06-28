@@ -23,22 +23,12 @@ class Subscription {
     private $fields;
     private $active;
 
-    public function __construct(array $configuration = array()) {
-        if (isset($configuration['object'])) {
-            $this->object = $configuration['object'];
-        }
-
-        if (isset($configuration['callback'])) {
-            $this->callback = $configuration['callback'];
-        }
-
-        if (isset($configuration['fields'])) {
-            $this->fields = $configuration['fields'];
-        }
-
-        if (isset($configuration['active'])) {
-            $this->active = $configuration['active'];
-        }
+    public function __construct($object = null, $callback = null, $fields = null, $active = true) {
+        
+        $this->object   = $object;
+        $this->callback = $callback;
+        $this->fields   = $fields;
+        $this->active   = $active;
     }
 
     /**

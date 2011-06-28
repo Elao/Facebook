@@ -37,6 +37,7 @@ class Configuration
     protected $appPermissions;           // Required permissions to generate login url
         
     protected $subscriptionsVerifyToken; // Required to use subscriptions manager   
+    protected $subscriptionsCallback;    // Subscription callback
     
     protected $debug;			 // Debug mode
     protected $configuration;	 // Handle all params
@@ -67,7 +68,11 @@ class Configuration
             $this->setSubscriptionsVerifyToken($configuration['subscriptionsVerifyToken']);
         }
         
-	$this->configuration = $configuration;
+        if (isset($configuration['subscriptionsCallback'])) {
+            $this->setSubscriptionsCallback($configuration['subscriptionsCallback']);
+        }
+        
+	$this->configuration = $configuration; 
     }	
 	
     public function get($key) {
@@ -149,6 +154,14 @@ class Configuration
     
     public function setSubscriptionsVerifyToken($subscriptionsVerifyToken) {
         $this->subscriptionsVerifyToken = $subscriptionsVerifyToken;
+    }
+    
+    public function getSubscriptionsCallback() {
+        return $this->subscriptionsCallback;
+    }
+    
+    public function setSubscriptionsCallback($subscriptionsCallback) {
+        $this->subscriptionsCallback = $subscriptionsCallback;
     }
     
 }

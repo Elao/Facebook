@@ -22,5 +22,6 @@ Interface SubscriptionsRequestHandlerInterface {
     
     public function getResponsePost(array $subscriptionsRequest);
 
+    public function getSubscriptionsManager();
 }
 

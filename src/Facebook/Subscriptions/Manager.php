@@ -11,14 +11,15 @@
 
 namespace Facebook\Subscriptions;
 
-use \Facebook\Loader\ApplicationLoader;
-
+use Facebook\Loader\ApplicationLoader;
+use Facebook\Subscriptions\Event;
+use Facebook\Subscriptions\Subscription;
 /**
  * Subscription Manager allows to manager Subscription Objects
  * 
  * @author Vincent Bouzeran <vincent.bouzeran@elao.com>
  */
-class Manager {
+abstract class Manager {
 
     protected $subscriptions;
     protected $facebook;
@@ -27,27 +28,56 @@ class Manager {
         $this->facebook = $facebook;
     }
 
-    // Renvoie vrai si une subscription existe pour cet objet
+    /**
+     * add or redefine a subscription
+     * @param Facebook\Subscriptions\Subscription $subscription 
+     * @return void
+     */
     public function add(Subscription $subscription) {
         $this->subscriptions[strtolower($subscription->getObject())] = $subscription;
     }
 
-    // Renvoie vrai si une subscription existe pour cet objet
+    /**
+     * add subscriptions from array of object => field
+     * @param array $subscriptions
+     */
+    public function addFromArray(array $subscriptions) {
+        foreach ($subscriptions as $sub) {
+            $subscription = new Subscription($sub['object'], null, $sub['fields'], true);
+            $this->add($subscription);
+        }
+    }
+    
+    /**
+     * check if a subscription is defined for given object
+     * @param string $object 
+     * @return boolean
+     */
     public function has($object) {
-        isset($this->subscriptions[strtolower($object)]);
+        return isset($this->subscriptions[strtolower($object)]);
     }
 
-    // Renvoie la subscription pour un object donné
+    /**
+     * return a subscription by it target object
+     * @param string $object
+     * @return type Facebook\Subscriptions\Subscription;
+     */
     public function get($object) {
         return $this->has($object) ? $this->subscriptions[strtolower($object)] : null;
     }
     
-    // Renvoie la liste des subscriptions pour l'application courante
+    /**
+     * Retrieve subscriptions
+     * @return type array
+     */
     public function all() {
         return $this->subscriptions;
     }
 
-    // Effectue l'appel pour enregistrer les subscriptions définies au niveau du manager
+    /**
+     *  Register defined subscriptions on facebook
+     *  throw \Exception
+     */
     public function registerSubscriptions() {
         $applicationLoader = new ApplicationLoader($this->facebook);
         $this->facebook->getSession($application, null, true);
@@ -55,8 +85,8 @@ class Manager {
             $params = array (
                 'object'        => $subscription->getObject(),
                 'fields'        => $subscription->getFields(),
-                'callback_url'  => $subscription->getCallback(),
-                'verify_token'  => $this->facebook->getConfigurtion()->getSubscriptionsVerifyToken()
+                'callback_url'  => $this->facebook->getConfiguration()->getSubscriptionsCallback(),
+                'verify_token'  => $this->facebook->getConfiguration()->getSubscriptionsVerifyToken()
             );
             $errors = array();
             try{
@@ -68,4 +98,19 @@ class Manager {
             throw new Exception(implode(',', $errors));
         }
     }
+
+    public function retrieveSubscriptions() {
+        $applicationLoader = new ApplicationLoader($this->facebook);
+        $this->facebook->getSession($application, null, true);
+        
+        $subscriptions = $facebook->api('/%app_id%/subscriptions');
+        
+        foreach ($subscriptions as $_subscription) {
+            $subscription = new Subscription($_subscription['object'], $_subscription['callback_url'], implode(',', $_subscription['fields']), $_subscription['active']);
+            $this->add($subscription);
+        }      
+        return $this->all();
+    }
+    
+    abstract public function handleEvent(Event $event);
 }
