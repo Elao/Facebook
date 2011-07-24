@@ -62,8 +62,8 @@ class CurlRequester implements RequesterInterface {
             $e = new ApiException(array(
                         'error_code' => curl_errno($ch),
                         'error'      => array(
-                            'message'   => curl_error($ch),
-                            'type'      => 'CurlException',
+                        'message'    => curl_error($ch),
+                        'type'       => 'CurlException',
                         )
                     ));
             curl_close($ch);

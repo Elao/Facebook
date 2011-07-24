@@ -35,10 +35,11 @@ use Facebook\Configuration;
  */
 class Facebook
 {
-    const FACEBOOK_URL	    = "https://www.facebook.com/";
-    const FACEBOOK_API_URL  = "https://graph.facebook.com/";
-    const FACEBOOK_APPS_URL = "http://apps.facebook.com/";
-	
+    const FACEBOOK_URL	      = "https://www.facebook.com/";
+    const FACEBOOK_API_URL    = "https://graph.facebook.com/";
+    const FACEBOOK_APPS_URL   = "http://apps.facebook.com/";
+    const FACEBOOK_QUERY_URL  = "https://api.facebook.com/";
+    
     const TRANSACTION_LIMIT = 20;
     
     protected $requester;		// Requester object
@@ -164,6 +165,8 @@ class Facebook
         $call = array('method' => $method);
         if (isset($params['access_token'])){
             $call['access_token'] = $params['access_token'];
+            // unset($params['access_token']); 
+            // DO NOT UNSET The access token params MUST be passed as query params
         }
         
         if ($method == 'GET'){ // Params should be added to query string relative
@@ -172,6 +175,33 @@ class Facebook
             $call['relative_url'] = $url;
             $call['body']         = http_build_query($params);
         }
+        
+        $this->transactionCalls[] = $call;
+    }
+    
+    public function addTransactionCallFql($url, $params) {
+        if (count($this->transactionCalls) >= self::TRANSACTION_LIMIT){
+            throw new ConfigurationException("Transaction calls limit ".self::TRANSACTION_LIMIT." reached");
+        }
+        
+        $call = array('method' => 'GET');
+        if (isset($params['access_token'])){
+            $call['access_token'] = $params['access_token'];
+            // unset($params['access_token']); 
+            // DO NOT UNSET The access token params MUST be passed as query params
+        }
+        
+        if (isset($params['query_name'])){
+            $call['name'] = $params['query_name'];
+            unset($params['query_name']);
+        }
+        
+        if (isset($params['omit_response_on_success'])){
+            $call['omit_response_on_success'] = $params['omit_response_on_success'];
+            unset($params['omit_response_on_success']);
+        }
+        
+        $call['relative_url'] = $url.'?'.http_build_query($params);
         
         $this->transactionCalls[] = $call;
     }
@@ -385,8 +415,10 @@ class Facebook
         $params['method'] = $method;
 
         // Access Token
-        $params['access_token'] = $this->getAccessToken();
-
+        if (!isset($params['access_token'])){
+            $params['access_token'] = $this->getAccessToken();
+        }
+        
         // Resolve path
         $path = $this->parsePath($path);
 
@@ -399,24 +431,7 @@ class Facebook
         }else{
             // Send the request to the graph api
             $result = $this->getRequester()->request($url, $params);
-
-            if ($result && is_array($result) && isset($result['error'])) {
-                $e = new ApiException($result);
-
-                switch ($e->getType()) {
-                    case 'OAuthException':
-                    case 'invalid_token':
-                        throw new AuthException($e->getMessage() . " calling " . $this->getUrl() . " with params " . implode(',', $params));
-                }
-                throw $e;
-            }
-
-            // Return either a Facebook Object or a Facebook Object Collection
-            if (isset($result['data'])) {
-                return new FacebookCollection($this, $result['data']);
-            } else {
-                return new FacebookObject($this, $result);
-            }
+            return $this->processResult($result);
         }
     }
 
@@ -438,17 +453,17 @@ class Facebook
         $url     = self::FACEBOOK_API_URL;
         $results = $this->getRequester()->request($url, $params);
         
+        if (isset($results['error'])){
+            throw new ApiException($results);
+        }
+        
         $data    = array();
         foreach ($results as $result){
-            $body = json_decode($result['body'], true);
-            if ($result['code'] == 200){ // Request succeed
-                if (isset($body['data'])){
-                    $data[] = new FacebookCollection($this, $body['data']);
-                }else{
-                    $data[] = new FacebookObject($this, $body);
-                }
+            if (isset($result['body'])){
+                $body   = json_decode($result['body'], true);
+                $data[] = $this->processResult($body);
             }else{
-                $data[]     = new ApiException($body);
+                $data[] = var_export($result, true);
             }
         }
         
@@ -456,6 +471,64 @@ class Facebook
         $this->transaction      = false;
         
         return $data;
+    }
+    
+    /**
+     * Send a FQL query to facebook, and return the result
+     * @param string $fql The FQL query
+     */
+    public function query($fql, $params = array()) {
+        
+        if (!$this->session) {
+            $this->getSession();
+        }
+        
+        $path = 'method/fql.query';
+        $params['format'] = 'JSON';
+        $params['query']  = $fql;
+        
+        if (!isset($params['access_token'])){
+            $params['access_token'] = $this->getAccessToken();
+        }
+        
+        $path = $this->parsePath($path);
+        $url  = $this->getFqlUrl($path, $params);
+        
+        if ($this->getTransaction()){
+             $this->addTransactionCallFql($path, $params);
+            return $this;
+        }else{
+            // Send the request to the graph api
+            $result = $this->getRequester()->request($url, $params);
+            return $this->processResult($result);
+        }
+    }
+    
+    /**
+     * Process a facebook result (can be from api call, batch call, query call)
+     * @param type $result
+     * @return FacebookCollection or FacebookObject or throw Exception
+     */
+    protected function processResult($result) {
+        if ($result && is_array($result) && (isset($result['error']) || isset($result['error_code']))) {
+            $e = new ApiException($result);
+
+            switch ($e->getType()) {
+                case 'OAuthException':
+                case 'invalid_token':
+                    return new AuthException($e->getMessage() . " calling " . $this->getUrl());
+            }
+            return new \Exception($e->getMessage());
+        }
+
+        // Return either a Facebook Object or a Facebook Object Collection
+        if (is_array($result) && isset($result['data'])) {
+            return new FacebookCollection($this, $result['data']);
+        } elseif (is_array($result) && isset($result['id'])) {
+            return new FacebookObject($this, $result);
+        } else {
+            return $result; // Unexpected result ...
+        }
     }
     
     /**
@@ -480,6 +553,9 @@ class Facebook
         return $this->getUrl(self::FACEBOOK_API_URL, $path, $params);
     }
 
+    public function getFqlUrl($path, $params) {
+        return $this->getUrl(self::FACEBOOK_QUERY_URL, $path, $params);
+    }
     /**
      * Build the URL for given domain alias, path and parameters.
      *
