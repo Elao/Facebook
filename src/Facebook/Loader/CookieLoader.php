@@ -31,16 +31,19 @@ class CookieLoader implements LoaderInterface {
     public function __construct(Facebook $facebook, SessionValidatorInterface $validator) {
         $this->facebook             = $facebook;
         $this->sessionValidator     = $validator;
-        $this->sessionCookieName    = 'fbs_' . $this->facebook->getConfiguration()->getAppId();
     }
 
+    public function getSessionCookieName() {
+        return 'fbs_' . $this->facebook->getConfiguration()->getAppId();
+    }
+    
     public function support() {
-        return isset($_COOKIE[$this->sessionCookieName]);
+        return isset($_COOKIE[$this->getSessionCookieName()]);
     }
 
     public function auth() {
         $session = array();
-        parse_str(trim(get_magic_quotes_gpc() ? stripslashes($_COOKIE[$this->sessionCookieName]) : $_COOKIE[$this->sessionCookieName], '"'), $session);
+        parse_str(trim(get_magic_quotes_gpc() ? stripslashes($_COOKIE[$this->getSessionCookieName()]) : $_COOKIE[$this->getSessionCookieName()], '"'), $session);
 
         // We should validated session here buddy
         if ($this->getValidator()->isValidSession($session)) {
